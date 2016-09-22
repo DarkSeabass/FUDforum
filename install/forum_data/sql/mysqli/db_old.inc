@@ -94,8 +94,7 @@ function db_affected()
 
 function uq($query)
 {
-	$newQuery = _changeDB($query);
-	return q($newQuery);
+	return q($query);
 }
 
 if (!defined('fud_query_stats')) {
@@ -166,8 +165,7 @@ function db_rowarr($result)
 
 function q_singleval($query)
 {
-	$newQuery = _changeDB($query);
-	$r = q($newQuery);
+	$r = q($query);
 	if (($result = $r->fetch_row()) !== false) {
 		return $result[0];
 	}
@@ -175,8 +173,7 @@ function q_singleval($query)
 
 function q_limit($query, $limit, $off=0)
 {
-	$newQuery = _changeDB($query);
-	return $newQuery .' LIMIT '. $limit .' OFFSET '. $off;
+	return $query .' LIMIT '. $limit .' OFFSET '. $off;
 }
 
 function q_concat($arg)
@@ -205,29 +202,25 @@ function q_bitnot($bitField) {
 
 function db_saq($q)
 {
-	$newQ = _changeDB($q);
-	$r = q($newQ);
+	$r = q($q);
 	return $r->fetch_row() ;
 }
 
 function db_sab($q)
 {
-	$newQ = _changeDB($q);
-	$r = q($newQ);
+	$r = q($q);
 	return $r->fetch_object();
 }
 
 function db_qid($q)
 {
-	$newQ = _changeDB($q);
-	q($newQ);
+	q($q);
 	return db::$db->insert_id;
 }
 
 function db_arr_assoc($q)
 {
-	$newQ = _changeDB($q);
-	$r = q($newQ);
+	$r = q($q);
 	return $r->fetch_array(MYSQLI_ASSOC);
 }
 
@@ -238,8 +231,7 @@ function db_fetch_array($r)
 
 function db_li($q, &$ef, $li=0)
 {
-	$newQ = _changeDB($q);
-	$r = db::$db->query($newQ);
+	$r = db::$db->query($q);
 	if ($r) {
 		return ($li ? db::$db->insert_id : $r);
 	}
@@ -249,7 +241,7 @@ function db_li($q, &$ef, $li=0)
 		$ef = ltrim(strrchr(db::$db->error, ' '));
 		return null;
 	} else {
-		fud_sql_error_handler($newQ, db::$db->error, db::$db->errno, db_version());
+		fud_sql_error_handler($q, db::$db->error, db::$db->errno, db_version());
 	}
 }
 
@@ -260,9 +252,8 @@ function ins_m($tbl, $flds, $types, $vals)
 
 function db_all($q)
 {
-	$newQ = _changeDB($q);
 	$f = array();
-	$c = uq($newQ);
+	$c = uq($q);
 	while ($r = $c->fetch_row()) {
 		$f[] = $r[0];
 	}
@@ -272,25 +263,5 @@ function db_all($q)
 function _esc($s)
 {
 	return '\''. db::$db->real_escape_string($s) .'\'';
-}
-
-function _changeDB($q) {
-	$searchReplaceArray = array(
-		'bsi_blocked_logins' => 'main_data.forum_blocked_logins',
-		'bsi_buddy' => 'main_data.forum_buddy',
-		'bsi_email_block' => 'main_data.forum_email_block',
-		'bsi_ext_block' => 'main_data.forum_ext_block',
-		'bsi_ip_block' => 'main_data.forum_ip_block',
-		'bsi_replace' => 'main_data.forum_replace',
-		'bsi_spiders' => 'main_data.forum_spiders',
-		'bsi_users' => 'main_data.forum_users',
-		'bsi_user_ignore' => 'main_data.forum_user_ignore'
-	);
-	$replacedQuery = str_replace(
-		array_keys($searchReplaceArray),
-		array_values($searchReplaceArray),
-		$q
-	);
-	return $replacedQuery;
 }
 ?>
