@@ -94,13 +94,13 @@ function db_affected()
 
 function uq($query)
 {
-	$newQuery = _changeDB($query);
-	return q($newQuery);
+	return q($query);
 }
 
 if (!defined('fud_query_stats')) {
 	function q($query)
 	{
+		$query = _changeDB($query);
 		// Assume master DB, route SELECT's to slave DB.
 		// Force master if DB is locked (in transaction) or 'SELECT /* USE MASTER */'.
 		$db = db::$db;
@@ -117,12 +117,13 @@ if (!defined('fud_query_stats')) {
 } else {
 	function q($query)
 	{
+		$query = _changeDB($query);
 		if (!isset($GLOBALS['__DB_INC_INTERNALS__']['query_count'])) {
 			$GLOBALS['__DB_INC_INTERNALS__']['query_count'] = 1;
 		} else {
 			++$GLOBALS['__DB_INC_INTERNALS__']['query_count'];
 		}
-	
+
 		if (!isset($GLOBALS['__DB_INC_INTERNALS__']['total_sql_time'])) {
 			$GLOBALS['__DB_INC_INTERNALS__']['total_sql_time'] = 0;
 		}
@@ -150,7 +151,7 @@ if (!defined('fud_query_stats')) {
 		echo ', total sql time: <i>'.  number_format($GLOBALS['__DB_INC_INTERNALS__']['total_sql_time'], 4) .'</i>';
 		echo '<pre>'. preg_replace('!\s+!', ' ', htmlspecialchars($query)) .'</pre></small>';
 
-		return $result; 
+		return $result;
 	}
 }
 
@@ -166,8 +167,7 @@ function db_rowarr($result)
 
 function q_singleval($query)
 {
-	$newQuery = _changeDB($query);
-	$r = q($newQuery);
+	$r = q($query);
 	if (($result = $r->fetch_row()) !== false) {
 		return $result[0];
 	}
@@ -175,8 +175,8 @@ function q_singleval($query)
 
 function q_limit($query, $limit, $off=0)
 {
-	$newQuery = _changeDB($query);
-	return $newQuery .' LIMIT '. $limit .' OFFSET '. $off;
+	$query = _changeDB($query);
+	return $query .' LIMIT '. $limit .' OFFSET '. $off;
 }
 
 function q_concat($arg)
@@ -205,29 +205,25 @@ function q_bitnot($bitField) {
 
 function db_saq($q)
 {
-	$newQ = _changeDB($q);
-	$r = q($newQ);
+	$r = q($q);
 	return $r->fetch_row() ;
 }
 
 function db_sab($q)
 {
-	$newQ = _changeDB($q);
-	$r = q($newQ);
+	$r = q($q);
 	return $r->fetch_object();
 }
 
 function db_qid($q)
 {
-	$newQ = _changeDB($q);
-	q($newQ);
+	q($q);
 	return db::$db->insert_id;
 }
 
 function db_arr_assoc($q)
 {
-	$newQ = _changeDB($q);
-	$r = q($newQ);
+	$r = q($q);
 	return $r->fetch_array(MYSQLI_ASSOC);
 }
 
@@ -238,8 +234,8 @@ function db_fetch_array($r)
 
 function db_li($q, &$ef, $li=0)
 {
-	$newQ = _changeDB($q);
-	$r = db::$db->query($newQ);
+	$q = _changeDB($q);
+	$r = db::$db->query($q);
 	if ($r) {
 		return ($li ? db::$db->insert_id : $r);
 	}
@@ -249,7 +245,7 @@ function db_li($q, &$ef, $li=0)
 		$ef = ltrim(strrchr(db::$db->error, ' '));
 		return null;
 	} else {
-		fud_sql_error_handler($newQ, db::$db->error, db::$db->errno, db_version());
+		fud_sql_error_handler($q, db::$db->error, db::$db->errno, db_version());
 	}
 }
 
@@ -260,9 +256,8 @@ function ins_m($tbl, $flds, $types, $vals)
 
 function db_all($q)
 {
-	$newQ = _changeDB($q);
 	$f = array();
-	$c = uq($newQ);
+	$c = uq($q);
 	while ($r = $c->fetch_row()) {
 		$f[] = $r[0];
 	}
