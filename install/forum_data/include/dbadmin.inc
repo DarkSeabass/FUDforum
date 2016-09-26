@@ -637,8 +637,11 @@ function create_index($tbl, $name, $unique, $flds, $del_dups=true)
 	}
 
 	if (__dbtype__ == 'mysql') {
+		$skipArray = array('blocked_logins', 'buddy', 'email_block', 'ext_block', 'ip_block', 'replace', 'spiders', 'users', 'user_ignore');
 		// Prevent the famous 'duplicate entry' errors on MySQL.
-		q('ALTER IGNORE TABLE '. $tbl .' ADD '. ($unique ? 'UNIQUE ' : 'INDEX ') . $name .' ('. $flds .')');
+		if (!in_array(substr($tbl, strpos($tbl, '_') + 1), $skipArray)) {
+			q('ALTER IGNORE TABLE ' . $tbl . ' ADD ' . ($unique ? 'UNIQUE ' : 'INDEX ') . $name . ' (' . $flds . ')');
+		}
 	} else {
 		$unique = $unique ? 'UNIQUE' : '';
 		q('CREATE '. $unique .' INDEX '. $name .' ON '. $tbl .' ('. $flds .')');
