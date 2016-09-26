@@ -271,15 +271,15 @@ function _esc($s)
 
 function _changeDB($q) {
 	$searchReplaceArray = array(
-		'bsi_blocked_logins' => 'main_data.forum_blocked_logins',
-		'bsi_buddy' => 'main_data.forum_buddy',
-		'bsi_email_block' => 'main_data.forum_email_block',
-		'bsi_ext_block' => 'main_data.forum_ext_block',
-		'bsi_ip_block' => 'main_data.forum_ip_block',
-		'bsi_replace' => 'main_data.forum_replace',
-		'bsi_spiders' => 'main_data.forum_spiders',
-		'bsi_users' => 'main_data.forum_users',
-		'bsi_user_ignore' => 'main_data.forum_user_ignore'
+		'bsi_blocked_logins' => 'forum_main_data.blocked_logins',
+		'bsi_buddy' => 'forum_main_data.buddy',
+		'bsi_email_block' => 'forum_main_data.email_block',
+		'bsi_ext_block' => 'forum_main_data.ext_block',
+		'bsi_ip_block' => 'forum_main_data.ip_block',
+		'bsi_replace' => 'forum_main_data.replace',
+		'bsi_spiders' => 'forum_main_data.spiders',
+		'bsi_users' => 'forum_main_data.users',
+		'bsi_user_ignore' => 'forum_main_data.user_ignore'
 	);
 	$replacedQuery = str_replace(
 		array_keys($searchReplaceArray),
